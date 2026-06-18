@@ -1,0 +1,1 @@
+"""Kvantitativ portefølje source package."""
