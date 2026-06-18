@@ -1,0 +1,32 @@
+tickers:
+  - AAPL
+  - MSFT
+  - GOOGL
+  - AMZN
+  - JPM
+  - GS
+  - XOM
+  - JNJ
+  - BRK-B
+  - SPY
+
+date_range:
+  start: "2019-01-01"
+  end: "2024-01-01"
+
+optimization:
+  risk_free_rate: 0.04
+  covariance_method: "ledoit_wolf"   # sample | ledoit_wolf | rolling
+  rolling_window: 126
+  n_frontier_points: 100
+  frequency: 252
+
+output:
+  dir: "outputs/"
+  save_html: true
+  save_csv: true
+  auto_git_push: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
