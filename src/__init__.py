@@ -1,1 +1,1 @@
-"""Kvantitativ portefølje source package."""
+"""Quantitative portfolio optimizer source package."""
