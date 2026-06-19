@@ -29,7 +29,9 @@ class TestMeanHistoricalReturn:
         np.testing.assert_allclose(annual.values, daily.values * 252, rtol=1e-6)
 
     def test_matches_manual_computation(self, sample_prices: pd.DataFrame) -> None:
-        expected = sample_prices.pct_change().dropna().mean() * 252
+        # The estimator annualizes the mean of daily *log* returns.
+        log_returns = np.log(sample_prices / sample_prices.shift(1)).dropna()
+        expected = log_returns.mean() * 252
         mu = mean_historical_return(sample_prices, frequency=252)
         np.testing.assert_allclose(mu.values, expected.values, rtol=1e-6)
 

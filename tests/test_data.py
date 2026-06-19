@@ -103,7 +103,9 @@ class TestLoadOrFetch:
 
         # No additional download on the second call.
         assert calls_after_second == calls_after_first
-        pd.testing.assert_frame_equal(first, second)
+        # Parquet round-trip does not preserve the DatetimeIndex freq metadata,
+        # so compare data/values without the freq attribute.
+        pd.testing.assert_frame_equal(first, second, check_freq=False)
 
     def test_creates_cache_artifact(self, patched_yfinance, tmp_path) -> None:
         cache_dir = tmp_path / "cache"
