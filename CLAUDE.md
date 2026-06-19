@@ -22,8 +22,11 @@ python main.py --no-push       # skip the post-run git commit
 ```
 
 ## Current status
-Last run: (not yet run)
-Tickers: (see config.yaml)
+Last run: 2026-06-19 07:14:23
+Tickers: AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY
 Covariance method: ledoit_wolf
-Best Sharpe (tangency): N/A
+Best Sharpe (tangency): 0.90
 Outputs: outputs/
+
+## Changelog
+- 2026-06-19 07:14:23: ran optimizer on AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY, updated outputs

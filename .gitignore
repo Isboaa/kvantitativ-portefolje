@@ -8,3 +8,7 @@ data/cache/
 *.egg-info/
 .pytest_cache/
 .coverage
+
+# Generated run artifacts (keep the dir via .gitkeep)
+outputs/*.html
+outputs/png/

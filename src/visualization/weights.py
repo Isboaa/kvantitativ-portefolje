@@ -60,8 +60,9 @@ def _asset_labels(
 ) -> list[str]:
     """Derive asset (ticker) labels for a portfolio.
 
-    Uses an explicit ``assets``/``tickers`` entry when available, otherwise
-    falls back to generic ``Asset 1..N`` labels.
+    Uses an explicit ``assets``/``tickers`` entry when available, then the
+    index of a pandas Series weight vector, otherwise falls back to generic
+    ``Asset 1..N`` labels.
 
     Args:
         portfolio: Portfolio mapping that may carry an asset-label entry.
@@ -73,6 +74,10 @@ def _asset_labels(
     for key in ("assets", "tickers", "labels"):
         if key in portfolio:
             return [str(a) for a in portfolio[key]]
+    for key in _WEIGHT_KEYS:
+        weights = portfolio.get(key)
+        if isinstance(weights, pd.Series) and len(weights.index) == n_assets:
+            return [str(a) for a in weights.index]
     return [f"Asset {i + 1}" for i in range(n_assets)]
 
 
