@@ -2,9 +2,10 @@ numpy
 pandas
 scipy
 scikit-learn
-yfinance
+yfinance>=0.2.65
 pyarrow
 plotly
+streamlit
 pyyaml
 tabulate
 pytest

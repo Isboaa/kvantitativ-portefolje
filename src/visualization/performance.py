@@ -67,6 +67,7 @@ def _fetch_benchmark_returns(index: pd.Index) -> Optional[pd.Series]:
 def plot_cumulative_returns(
     prices: pd.DataFrame,
     weights_dict: dict[str, np.ndarray],
+    save: bool = True,
 ) -> go.Figure:
     """Plot cumulative growth of each portfolio against the SPY benchmark.
 
@@ -78,6 +79,8 @@ def plot_cumulative_returns(
         prices: DataFrame of asset prices (rows = dates, columns = tickers).
         weights_dict: Mapping of portfolio name to a weight vector aligned with
             the columns of ``prices``.
+        save: When ``True`` (default) the figure is also written to
+            ``outputs/`` as HTML; pass ``False`` to only return it.
 
     Returns:
         The constructed Plotly :class:`~plotly.graph_objects.Figure`.
@@ -127,7 +130,8 @@ def plot_cumulative_returns(
         legend={"title": "Portfolio"},
     )
 
-    save_figure(fig, "plot_cumulative_returns")
+    if save:
+        save_figure(fig, "plot_cumulative_returns")
     return fig
 
 
@@ -136,6 +140,7 @@ def plot_rolling_sharpe(
     weights_dict: dict[str, np.ndarray],
     window: int = 63,
     risk_free_rate: float = 0.04,
+    save: bool = True,
 ) -> go.Figure:
     """Plot the rolling annualized Sharpe ratio for each portfolio.
 
@@ -151,6 +156,8 @@ def plot_rolling_sharpe(
         window: Rolling window length in trading days (default 63, ~one
             quarter).
         risk_free_rate: Annualized risk-free rate (decimal, e.g. ``0.04``).
+        save: When ``True`` (default) the figure is also written to
+            ``outputs/`` as HTML; pass ``False`` to only return it.
 
     Returns:
         The constructed Plotly :class:`~plotly.graph_objects.Figure`.
@@ -189,5 +196,6 @@ def plot_rolling_sharpe(
         legend={"title": "Portfolio"},
     )
 
-    save_figure(fig, "plot_rolling_sharpe")
+    if save:
+        save_figure(fig, "plot_rolling_sharpe")
     return fig

@@ -17,12 +17,17 @@ charts, and logs every run.
 ## Usage
 ```
 pip install -r requirements.txt
-python main.py                 # uses config.yaml defaults
+python main.py                 # CLI: uses config.yaml defaults
 python main.py --no-push       # skip the post-run git commit
+streamlit run app.py           # interactive web app (pick stocks, view explained charts)
 ```
 
+`app.py` is a Streamlit front-end over the same pipeline: choose stocks (curated
+list or custom tickers), a date range and settings in the sidebar, and it
+re-optimizes live and renders every chart with a plain-language explanation.
+
 ## Current status
-Last run: 2026-06-19 07:14:23
+Last run: 2026-07-21 22:05:08
 Tickers: AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY
 Covariance method: ledoit_wolf
 Best Sharpe (tangency): 0.90
@@ -30,3 +35,6 @@ Outputs: outputs/
 
 ## Changelog
 - 2026-06-19 07:14:23: ran optimizer on AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY, updated outputs
+- 2026-07-21 20:58:21: ran optimizer on AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY, updated outputs
+- 2026-07-21 21:13:08: ran optimizer on AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY, updated outputs
+- 2026-07-21 22:05:08: ran optimizer on AAPL MSFT GOOGL AMZN JPM GS XOM JNJ BRK-B SPY, updated outputs

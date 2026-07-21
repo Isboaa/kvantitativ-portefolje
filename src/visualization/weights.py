@@ -81,13 +81,15 @@ def _asset_labels(
     return [f"Asset {i + 1}" for i in range(n_assets)]
 
 
-def plot_weights(portfolios: dict[str, dict]) -> go.Figure:
+def plot_weights(portfolios: dict[str, dict], save: bool = True) -> go.Figure:
     """Grouped bar chart comparing weights across reference portfolios.
 
     Args:
         portfolios: Mapping of portfolio name (e.g. ``min_variance``,
             ``tangency``, ``naive``) to a portfolio dict containing a weight
             vector and optionally an ``assets``/``tickers`` label list.
+        save: When ``True`` (default) the figure is also written to
+            ``outputs/`` as HTML; pass ``False`` to only return it.
 
     Returns:
         The constructed Plotly :class:`~plotly.graph_objects.Figure`.
@@ -123,7 +125,8 @@ def plot_weights(portfolios: dict[str, dict]) -> go.Figure:
         legend={"title": "Portfolio"},
     )
 
-    save_figure(fig, "plot_weights")
+    if save:
+        save_figure(fig, "plot_weights")
     return fig
 
 
@@ -148,7 +151,7 @@ def _frontier_weight_columns(frontier_df: pd.DataFrame) -> list[str]:
     return cols
 
 
-def plot_weights_area(frontier_df: pd.DataFrame) -> go.Figure:
+def plot_weights_area(frontier_df: pd.DataFrame, save: bool = True) -> go.Figure:
     """Stacked area chart of how asset weights shift along the frontier.
 
     The x-axis represents the frontier index (ordered from the
@@ -161,6 +164,8 @@ def plot_weights_area(frontier_df: pd.DataFrame) -> go.Figure:
             columns (return, volatility/risk, sharpe). The frontier ordering is
             taken from a return/volatility column when present, otherwise from
             row order.
+        save: When ``True`` (default) the figure is also written to
+            ``outputs/`` as HTML; pass ``False`` to only return it.
 
     Returns:
         The constructed Plotly :class:`~plotly.graph_objects.Figure`.
@@ -205,5 +210,6 @@ def plot_weights_area(frontier_df: pd.DataFrame) -> go.Figure:
         legend={"title": "Asset"},
     )
 
-    save_figure(fig, "plot_weights_area")
+    if save:
+        save_figure(fig, "plot_weights_area")
     return fig

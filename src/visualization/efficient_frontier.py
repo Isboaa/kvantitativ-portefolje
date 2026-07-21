@@ -79,6 +79,7 @@ def plot_efficient_frontier(
     naive: Mapping[str, object],
     assets_df: pd.DataFrame,
     risk_free_rate: float,
+    save: bool = True,
 ) -> go.Figure:
     """Plot the efficient frontier with reference portfolios and the CML.
 
@@ -100,6 +101,8 @@ def plot_efficient_frontier(
         assets_df: DataFrame indexed by ticker with a return column and a risk
             column for each individual asset.
         risk_free_rate: Annualized risk-free rate (decimal, e.g. ``0.04``).
+        save: When ``True`` (default) the figure is also written to
+            ``outputs/`` as HTML; pass ``False`` to only return it.
 
     Returns:
         The constructed Plotly :class:`~plotly.graph_objects.Figure`.
@@ -201,7 +204,8 @@ def plot_efficient_frontier(
         legend={"yanchor": "top", "y": 0.99, "xanchor": "left", "x": 0.01},
     )
 
-    save_figure(fig, "plot_efficient_frontier")
+    if save:
+        save_figure(fig, "plot_efficient_frontier")
     return fig
 
 

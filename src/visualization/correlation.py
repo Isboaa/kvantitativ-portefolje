@@ -13,7 +13,7 @@ from src.visualization._io import daily_returns, save_figure
 logger = logging.getLogger(__name__)
 
 
-def plot_correlation_heatmap(prices: pd.DataFrame) -> go.Figure:
+def plot_correlation_heatmap(prices: pd.DataFrame, save: bool = True) -> go.Figure:
     """Annotated correlation heatmap of asset daily returns.
 
     Correlations are computed from daily simple returns (not raw prices, which
@@ -23,6 +23,8 @@ def plot_correlation_heatmap(prices: pd.DataFrame) -> go.Figure:
 
     Args:
         prices: DataFrame of asset prices (rows = dates, columns = tickers).
+        save: When ``True`` (default) the figure is also written to
+            ``outputs/`` as HTML; pass ``False`` to only return it.
 
     Returns:
         The constructed Plotly :class:`~plotly.graph_objects.Figure`.
@@ -51,5 +53,6 @@ def plot_correlation_heatmap(prices: pd.DataFrame) -> go.Figure:
         coloraxis_colorbar={"title": "Correlation"},
     )
 
-    save_figure(fig, "plot_correlation_heatmap")
+    if save:
+        save_figure(fig, "plot_correlation_heatmap")
     return fig

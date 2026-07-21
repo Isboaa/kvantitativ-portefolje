@@ -10,11 +10,110 @@ from __future__ import annotations
 
 import argparse
 import logging
+import time
 
 import pandas as pd
 import yfinance as yf
 
 logger = logging.getLogger(__name__)
+
+# Number of download attempts and the base (seconds) for exponential back-off
+# when Yahoo rate-limits or returns an empty frame.
+_MAX_ATTEMPTS = 3
+_BACKOFF_BASE = 2.0
+
+
+class RateLimitError(ValueError):
+    """Raised when Yahoo Finance rate-limits the price download.
+
+    Subclasses :class:`ValueError` so existing callers that catch ``ValueError``
+    keep working, while newer callers (e.g. the web app) can catch this specific
+    type to show an honest "wait and retry" message.
+    """
+
+
+def _is_rate_limited(exc: Exception | None) -> bool:
+    """Best-effort detection of a Yahoo rate-limit condition.
+
+    yfinance signals throttling in two ways depending on version: it may raise
+    ``YFRateLimitError``, or it may swallow the error and merely return an empty
+    frame while recording the reason in ``yf.shared._ERRORS``. This checks both.
+
+    Args:
+        exc: The exception raised by ``yf.download`` (if any).
+
+    Returns:
+        ``True`` if the failure looks like rate-limiting.
+    """
+    needles = ("rate limit", "too many requests", "yfratelimit")
+
+    if exc is not None:
+        if type(exc).__name__ == "YFRateLimitError":
+            return True
+        if any(n in str(exc).lower() for n in needles):
+            return True
+
+    # Inspect yfinance's per-ticker error registry when the call returned empty.
+    errors = getattr(getattr(yf, "shared", None), "_ERRORS", None)
+    if isinstance(errors, dict):
+        blob = " ".join(str(v) for v in errors.values()).lower()
+        if any(n in blob for n in needles):
+            return True
+
+    return False
+
+
+def _download_with_retry(tickers: list[str], start: str, end: str) -> pd.DataFrame:
+    """Call ``yf.download`` with retries and exponential back-off.
+
+    Returns the first non-empty frame. If every attempt fails, raises
+    :class:`RateLimitError` when the failure looks like throttling, otherwise a
+    plain :class:`ValueError`.
+
+    Args:
+        tickers: De-duplicated ticker symbols to download.
+        start: Inclusive start date (YYYY-MM-DD).
+        end: Exclusive end date (YYYY-MM-DD).
+
+    Returns:
+        The raw yfinance download frame.
+    """
+    last_exc: Exception | None = None
+    for attempt in range(_MAX_ATTEMPTS):
+        raw = None
+        try:
+            raw = yf.download(
+                tickers=tickers,
+                start=start,
+                end=end,
+                auto_adjust=True,
+                progress=False,
+                group_by="column",
+            )
+        except Exception as exc:  # noqa: BLE001 - retried/classified below
+            last_exc = exc
+            logger.warning("yfinance download attempt %d failed: %s", attempt + 1, exc)
+
+        if raw is not None and not raw.empty:
+            return raw
+
+        if attempt < _MAX_ATTEMPTS - 1:
+            delay = _BACKOFF_BASE ** attempt
+            logger.info("Retrying download in %.0fs (attempt %d/%d)…",
+                        delay, attempt + 2, _MAX_ATTEMPTS)
+            time.sleep(delay)
+
+    if _is_rate_limited(last_exc):
+        raise RateLimitError(
+            "Yahoo Finance is rate-limiting requests right now. Please wait a "
+            "minute and try again. (Already-analyzed stocks are cached and still "
+            "work offline.)"
+        )
+    if last_exc is not None:
+        raise ValueError(f"yfinance download failed: {last_exc}") from last_exc
+    raise ValueError(
+        f"yfinance returned no data for tickers {tickers} in range {start}..{end}."
+    )
 
 
 def fetch_prices(tickers: list[str], start: str, end: str) -> pd.DataFrame:
@@ -52,20 +151,7 @@ def fetch_prices(tickers: list[str], start: str, end: str) -> pd.DataFrame:
         ", ".join(unique_tickers),
     )
 
-    raw = yf.download(
-        tickers=unique_tickers,
-        start=start,
-        end=end,
-        auto_adjust=True,
-        progress=False,
-        group_by="column",
-    )
-
-    if raw is None or raw.empty:
-        raise ValueError(
-            f"yfinance returned no data for tickers {unique_tickers} "
-            f"in range {start}..{end}."
-        )
+    raw = _download_with_retry(unique_tickers, start, end)
 
     prices = _extract_close(raw, unique_tickers)
 
